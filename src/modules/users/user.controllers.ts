@@ -40,8 +40,59 @@ const getUser=async (req: Request, res: Response) => {
   }
 }
 
+const getSingleUser=async (req: Request, res: Response) => {
+
+  try {
+    const result = await userServices.getSingleUserDB(req.params.id as string);
+    if (result.rows.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "Single user retrieved successfully",
+        data: result.rows[0],
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
+
+const updateUser=async (req: Request, res: Response) => {
+  const { name,email,phone,role } = req.body;
+  try {
+    const result = await userServices.updateUserDB(name, email,phone,role, req.params.id!);
+//   console.log(result)
+    if (result.rows.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "User updated successfully",
+        data: result.rows[0],
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 
 export const userCollectors={
       createUser  ,
-      getUser                      
+      getUser,
+      getSingleUser ,
+      updateUser                    
 }
