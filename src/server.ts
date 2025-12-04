@@ -1,10 +1,14 @@
 import express, { Request, Response } from "express";
+import initBD from "./config/db";
+import config from "./config";
+import { userRoutes } from "./modules/users/user.routes";
  const app = express();
-app.use(express.json());
+ app.use(express.json());
+ const port = config.port;
 
-//initDB();
+ initBD();
 
-// app.use("/api/v1/users", userRoute);
+ app.use("/api/v1/users", userRoutes);
 // app.use("/api/v1/auth", authRoute);
 
 
@@ -15,7 +19,7 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-app.listen(5000, () => {
+app.listen(port, () => {
   console.log("Server is running on post 5000");
 });
 
