@@ -89,10 +89,36 @@ const updateUser=async (req: Request, res: Response) => {
   }
 };
 
+const deleteUser= async (req: Request, res: Response) => {
+  try {
+    const result = await userServices.deleteUserDB(req.params.id!);
+
+    if (result.rowCount === 0) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+        data: result.rows,
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+
 
 export const userCollectors={
       createUser  ,
       getUser,
       getSingleUser ,
-      updateUser                    
+      updateUser ,
+      deleteUser                  
 }

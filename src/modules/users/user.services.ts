@@ -28,8 +28,13 @@ const updateUserDB = async (name: string, email: string, phone: string, role: st
     `UPDATE users SET name=$1, email=$2, phone=$3, role=$4 WHERE id=$5 RETURNING *`,
     [name, email,phone,role,id]
   );
-
    delete result.rows[0].password;
+  return result;
+};
+
+const deleteUserDB = async (id: string) => {
+  const result = await pool.query(`DELETE FROM users WHERE id = $1`, [id]);
+
   return result;
 };
 
@@ -37,5 +42,6 @@ export const userServices={
       createUserDB ,
       getUserDB ,
       getSingleUserDB,
-      updateUserDB                     
+      updateUserDB,
+      deleteUserDB                     
 }

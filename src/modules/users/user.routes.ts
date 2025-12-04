@@ -6,5 +6,6 @@ router.post('/',userCollectors.createUser);
 router.get('/',userCollectors.getUser)
 router.get('/:id',userCollectors.getSingleUser)
 router.put('/:id',userCollectors.updateUser)
+router.delete('/:id',userCollectors.deleteUser)
 
 export const userRoutes=router;
