@@ -3,6 +3,7 @@ import initBD from "./config/db";
 import config from "./config";
 import { userRoutes } from "./modules/users/user.routes";
 import { vehicleRoutes } from "./modules/vehicle/vehicle.routes";
+import { authRoutes } from "./modules/auth/auth.routes";
  const app = express();
  app.use(express.json());
  const port = config.port;
@@ -11,7 +12,7 @@ import { vehicleRoutes } from "./modules/vehicle/vehicle.routes";
 
  app.use("/api/v1/users", userRoutes);
  app.use("/api/v1/vehicles", vehicleRoutes);
-
+app.use("/api/v1/auth", authRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
