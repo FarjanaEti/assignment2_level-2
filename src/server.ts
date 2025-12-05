@@ -4,6 +4,7 @@ import config from "./config";
 import { userRoutes } from "./modules/users/user.routes";
 import { vehicleRoutes } from "./modules/vehicle/vehicle.routes";
 import { authRoutes } from "./modules/auth/auth.routes";
+import { bookingRoutes } from "./modules/booking/booking.routes";
  const app = express();
  app.use(express.json());
  const port = config.port;
@@ -13,6 +14,7 @@ import { authRoutes } from "./modules/auth/auth.routes";
  app.use("/api/v1/users", userRoutes);
  app.use("/api/v1/vehicles", vehicleRoutes);
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/bookings", bookingRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
