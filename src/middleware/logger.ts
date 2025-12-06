@@ -7,3 +7,7 @@ const logger = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export default logger;
+
+
+//get all user done
+//user delete done

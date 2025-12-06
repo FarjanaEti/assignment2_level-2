@@ -1,6 +1,7 @@
 import config from "../../config";
 import { pool } from "../../config/db";
 import jwt from 'jsonwebtoken';
+import bcrypt from "bcryptjs";
 
 const signupUserDB = async (name: string, email: string, password: string , phone:string, role:string) => {
   const exists = await pool.query(
@@ -12,24 +13,17 @@ const signupUserDB = async (name: string, email: string, password: string , phon
     throw new Error("Email already exists");
   }
 
-  //const hashed = await bcrypt.hash(password, 10);
+  const hashedPass = await bcrypt.hash(password, 10);
 
   const result = await pool.query(
-    `INSERT INTO users(name, email, password,phone,role)
+    `INSERT INTO users(name, email, password, phone, role)
      VALUES ($1, $2, $3,$4,$5)
-     RETURNING id, name, email, phone,role`,
-    [name, email, password,phone,role]
+     RETURNING *`,
+    [name, email,hashedPass,phone,role]
   );
 
   return  result;
 
-//   const token = jwt.sign(
-//     { id: user.id, email: user.email },
-//     config.jwtSecret,
-//     { expiresIn: "7d" }
-//   );
-
-  //return { user };
 };
 
 const signinUserDB = async (email: string, password: string) => {

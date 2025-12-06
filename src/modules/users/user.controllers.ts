@@ -102,7 +102,7 @@ const deleteUser= async (req: Request, res: Response) => {
       res.status(200).json({
         success: true,
         message: "User deleted successfully",
-        data: result.rows,
+        
       });
     }
   } catch (err: any) {
