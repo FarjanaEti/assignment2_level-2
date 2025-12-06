@@ -9,7 +9,7 @@ const auth = (...roles: string[]) => {
       const token = req.headers.authorization;
       console.log(token)
       if (!token) {
-        return res.status(500).json({ message: "You are not allowed!!" });
+        return res.status(403).json({ message: "You are not allowed!!" });
       }
       const decoded = jwt.verify(
         token,
@@ -20,7 +20,7 @@ const auth = (...roles: string[]) => {
 
       //["admin"]
       if (roles.length && !roles.includes(decoded.role as string)) {
-        return res.status(500).json({
+        return res.status(401).json({
           error: "unauthorized!!!",
         });
       }

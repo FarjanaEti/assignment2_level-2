@@ -27,6 +27,29 @@ const createBooking = async (req: Request, res: Response) => {
   }
 };
 
+const getAllBooking = async (req: Request, res: Response) => {
+  try {
+    const role = req.user?.role as string;
+    const id = req.user?.id as number;
+    const result = await bookingService.getAllBookingDB(role, id);
+  console.log(result)
+    return res.status(200).json({
+      success: true,
+      message:
+        role === "admin"
+          ? "Bookings retrieved successfully"
+          : "Your bookings retrieved successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 export const bookingController = {
   createBooking,
+  getAllBooking
 };

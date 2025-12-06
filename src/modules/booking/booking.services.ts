@@ -49,6 +49,53 @@ const createBookingDB = async (customer_id: number,vehicle_id: number,rent_start
   return booking;
 };
 
+const getAllBookingDB = async (role: string, userId: number) => {
+  let query;
+  let params: any[] = [];
+
+  if (role === "admin") {
+    query = `
+      SELECT 
+        b.*,
+        u.name AS customer_name,
+        u.email AS customer_email,
+        v.vehicle_name,
+        v.registration_number
+      FROM booking b
+      JOIN users u ON b.customer_id = u.id
+      JOIN vehicles v ON b.vehicle_id = v.id
+      ORDER BY b.id DESC
+    `;
+  } else {
+    query = `
+      SELECT 
+        b.id,
+        b.vehicle_id,
+        b.rent_start_date,
+        b.rent_end_date,
+        b.total_price,
+        b.status,
+        v.vehicle_name,
+        v.registration_number,
+        v.type
+      FROM booking b
+      JOIN vehicles v ON b.vehicle_id = v.id
+      WHERE b.customer_id = $1
+      ORDER BY b.id DESC
+    `;
+    params = [userId];
+  }
+  //todo= response structure
+
+  const result = await pool.query(query, params);
+  return result.rows;
+};
+
+
+
+
 export const bookingService = {
   createBookingDB,
+  getAllBookingDB
+
 };
