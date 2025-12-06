@@ -1,6 +1,7 @@
 import { pool } from "../../config/db";
 import bcrypt from "bcryptjs";
 
+
 const createUserDB=async(payload :Record<string, unknown>)=>{
   const {name,email, password, phone,role}=payload;
 

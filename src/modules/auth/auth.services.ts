@@ -1,4 +1,6 @@
+import config from "../../config";
 import { pool } from "../../config/db";
+import jwt from 'jsonwebtoken';
 
 const signupUserDB = async (name: string, email: string, password: string , phone:string, role:string) => {
   const exists = await pool.query(
@@ -50,7 +52,12 @@ const signinUserDB = async (email: string, password: string) => {
   // remove password before sending
   delete user.password;
  
-  return { user };
+   const token= jwt.sign({name:user.name, email:user.email, role:user.role},config.jwtSecret as string,{
+  expiresIn:"7d"
+  })
+//console.log(token);
+
+  return { token,user };
 };
 
 
