@@ -50,7 +50,7 @@ const updateUserDB = async (name: string, email: string, phone: string, role: st
 
 const deleteUserDB = async (userId: string) => {
   const bookingCheck = await pool.query(
-    `SELECT COUNT(*) FROM booking WHERE user_id = $1`,
+    `SELECT COUNT(*) FROM booking WHERE id = $1`,
     [userId]
   );
   

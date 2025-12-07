@@ -18,7 +18,7 @@ app.use("/api/v1/bookings", bookingRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
-    message: "This is the root route",
+    message: "This is my root route",
     path: req.path,
   });
 });
