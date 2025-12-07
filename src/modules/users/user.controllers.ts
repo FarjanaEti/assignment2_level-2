@@ -68,31 +68,35 @@ const getSingleUser=async (req: Request, res: Response) => {
 
 const updateUser = async (req: Request, res: Response) => {
   const { name, email, phone, role } = req.body;
-
   const targetId = req.params.userId!;
   const signinUser = req.user;
 
- 
-  if (signinUser?.role === "customer" && signinUser?.userId !== targetId) {
+  
+  if (signinUser?.role === "customer" && signinUser?.id != targetId) {
     return res.status(403).json({
       success: false,
       message: "You can only update your own profile."
     });
   }
-
   let roleupdate = role;
   if (signinUser?.role !== "admin") {
-     if (role !== undefined) {
-    return res.status(403).json({
-      success: false,
-      message: "You are not allowed to update user role."
-    });
-  }
-  roleupdate = undefined;
+    if (role !== undefined) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to update user role."
+      });
+    }
+    roleupdate = null; 
   }
 
   try {
-    const result = await userServices.updateUserDB(name,email,phone, roleupdate,targetId);
+    const result = await userServices.updateUserDB(
+      name,
+      email,
+      phone,
+      roleupdate,
+      targetId
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -111,13 +115,12 @@ const updateUser = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       message: err.message,
-      errors:err
+      errors: err
     });
   }
 };
 
-
-const deleteUser= async (req: Request, res: Response) => {
+const deleteUser = async (req: Request, res: Response) => {
   try {
     const result = await userServices.deleteUserDB(req.params.userId!);
 
@@ -130,14 +133,14 @@ const deleteUser= async (req: Request, res: Response) => {
       res.status(200).json({
         success: true,
         message: "User deleted successfully",
-        
       });
     }
   } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
+      res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    
   }
 };
 

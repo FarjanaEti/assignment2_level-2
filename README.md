@@ -2,7 +2,7 @@
 
 A robust and secure backend system for managing vehicle rentals, built with a modern Node.js and TypeScript stack.
 
-## Live URL:
+## Live URL:https://assignment-2-ruby-zeta.vercel.app/
 
 ## Features
 
