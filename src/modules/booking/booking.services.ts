@@ -1,11 +1,7 @@
 import { pool } from "../../config/db";
 
-// Create a new booking
-const createBookingDB = async (
-  customer_id: number,
-  vehicle_id: number,
-  rent_start_date: string,
-  rent_end_date: string
+
+const createBookingDB = async (customer_id: number,vehicle_id: number,rent_start_date: string,rent_end_date: string
 ) => {
   const vehicleResult = await pool.query(
     `SELECT id, vehicle_name, daily_rent_price, availability_status
@@ -54,7 +50,7 @@ const createBookingDB = async (
   return booking;
 };
 
-// Get all bookings (role-based)
+
 const getAllBookingDB = async (role: string, userId: number) => {
   let query;
   let params: any[] = [];
@@ -96,9 +92,7 @@ const getAllBookingDB = async (role: string, userId: number) => {
   return result.rows;
 };
 
-// Update booking (cancel by customer or mark returned by admin)
 const updateBookingDB = async (role: string, userId: number, bookingId: number, status: string) => {
-  // Fetch booking with only date (ignore time)
   const bookingResult = await pool.query(
     `SELECT id, customer_id, vehicle_id, rent_start_date::date AS rent_start_date, rent_end_date::date AS rent_end_date, status
      FROM booking
@@ -112,7 +106,6 @@ const updateBookingDB = async (role: string, userId: number, bookingId: number, 
 
   const booking = bookingResult.rows[0];
 
-  // CUSTOMER LOGIC: can cancel only before start date
   if (role === "customer") {
     if (booking.customer_id !== userId) {
       throw new Error("You can only cancel your own booking");
@@ -135,10 +128,16 @@ const updateBookingDB = async (role: string, userId: number, bookingId: number, 
       [status, bookingId]
     );
 
-    return result.rows[0];
+    const cancellBooking = result.rows[0]
+    await pool.query(
+      `UPDATE vehicles SET availability_status='available' WHERE id=$1`,
+      [cancellBooking.vehicle_id]
+    );
+
+    cancellBooking.vehicle = { availability_status: "available" }
+    return cancellBooking
   }
 
-  // ADMIN LOGIC: mark as returned (updates vehicle to available)
   if (role === "admin") {
     if (status !== "returned") {
       throw new Error("Admin can only mark as returned");
@@ -147,21 +146,20 @@ const updateBookingDB = async (role: string, userId: number, bookingId: number, 
     const result = await pool.query(
       `UPDATE booking SET status=$1 WHERE id=$2 RETURNING *`,
       [status, bookingId]
-    );
+    )
 
-    const updatedBooking = result.rows[0];
+    const updatedBooking = result.rows[0]
 
-    // Update vehicle availability
     await pool.query(
       `UPDATE vehicles SET availability_status='available' WHERE id=$1`,
       [updatedBooking.vehicle_id]
-    );
+    )
 
-    updatedBooking.vehicle = { availability_status: "available" };
-    return updatedBooking;
+    updatedBooking.vehicle = { availability_status: "available" }
+    return updatedBooking
   }
 
-  throw new Error("Unauthorized action");
+  throw new Error("Unauthorized action")
 };
 
 export const bookingService = {
