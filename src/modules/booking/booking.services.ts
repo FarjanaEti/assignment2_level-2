@@ -131,28 +131,27 @@ const updateBookingDB = async (
     }
   }
 
-  // ADMIN logic
   if (role === "admin") {
     if (status !== "returned") {
       throw new Error("Admin can only mark as returned");
     }
   }
 
-  // SYSTEM logic (auto return)
+  
   if (role === "system") {
     if (status !== "returned") {
       throw new Error("System can only mark as returned");
     }
   }
 
-  // UPDATE booking
+ 
   const result = await pool.query(
     `UPDATE booking SET status=$1 WHERE id=$2 RETURNING *`,
     [status, bookingId]
   );
   const updatedBooking = result.rows[0];
 
-  // UPDATE vehicle availability
+  
   if (status === "cancelled" || status === "returned") {
     await pool.query(
       `UPDATE vehicles SET availability_status='available' WHERE id=$1`,
