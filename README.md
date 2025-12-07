@@ -40,9 +40,12 @@ A robust and secure backend system for managing vehicle rentals, built with a mo
 
 3. Configure environment variables:
    Create a .env file in the root directory:
+
    PORT=5000
+
    DATABASE_URL=postgresql://username:password@localhost:5432/vehicle_rental
+
    JWT_SECRET=your_jwt_secret
 
-4. Run the application
+4. Run the application:
    npm run dev
