@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { userServices } from "./user.services";
+import { error } from "console";
 
 
 const createUser=async(req:Request, res:Response)=>{
@@ -17,6 +18,7 @@ const createUser=async(req:Request, res:Response)=>{
        res.status(500).json({
       success: false,
       message: err.message,
+      error:err
     });
     }
 

@@ -22,6 +22,7 @@ const signupUserDB = async (name: string, email: string, password: string , phon
     [name, email,hashedPass,phone,role]
   );
 
+delete result.rows[0].password
   return  result;
 
 };
@@ -38,12 +39,12 @@ const signinUserDB = async (email: string, password: string) => {
 
   const user = result.rows[0];
 
-  // if you haven't added bcrypt yet:
-  if (user.password !== password) {
-    throw new Error("Invalid password");
-  }
+  const match = await bcrypt.compare(password, user.password);
+if (!match) {
+  throw new Error("Invalid password");
+}
 
-  // remove password before sending
+  
   delete user.password;
  
    const token= jwt.sign({ id: user.id,name:user.name, email:user.email, role:user.role},config.jwtSecret as string,{

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { authServices } from "./auth.services";
+import { error } from "console";
 
 
 const signupUser = async (req: Request, res: Response) => {
@@ -17,6 +18,7 @@ const signupUser = async (req: Request, res: Response) => {
     res.status(400).json({
       success: false,
       message: err.message,
+      //errors:err
     });
   }
 };
@@ -36,6 +38,7 @@ const signinUser = async (req: Request, res: Response) => {
     res.status(400).json({
       success: false,
       message: err.message,
+      errors:err
     });
   }
 };

@@ -6,16 +6,24 @@ import config from "../config";
 const auth = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.headers.authorization;
-      console.log(token)
-      if (!token) {
-        return res.status(403).json({ message: "You are not allowed!!" });
+      const bearerToken = req.headers.authorization;
+      //console.log(token)
+      if (!bearerToken || typeof bearerToken!== "string") {
+        return res.status(401).json({ message: "No token provided" });
       }
+       const parts = bearerToken.split(" ");
+
+      if (parts.length !== 2 || parts[0] !== "Bearer") {
+        return res.status(401).json({ message: "Invalid authorization format" });
+      }
+
+      const token  = parts[1]!; 
+
       const decoded = jwt.verify(
         token,
         config.jwtSecret as string
       ) as JwtPayload;
-      console.log({ decoded });
+      //console.log({ decoded });
       req.user = decoded;
 
       //["admin"]

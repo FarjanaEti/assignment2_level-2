@@ -1,7 +1,12 @@
 import { pool } from "../../config/db";
 
-const createBookingDB = async (customer_id: number,vehicle_id: number,rent_start_date: string,rent_end_date: string) => {
- 
+// Create a new booking
+const createBookingDB = async (
+  customer_id: number,
+  vehicle_id: number,
+  rent_start_date: string,
+  rent_end_date: string
+) => {
   const vehicleResult = await pool.query(
     `SELECT id, vehicle_name, daily_rent_price, availability_status
      FROM vehicles WHERE id=$1`,
@@ -49,6 +54,7 @@ const createBookingDB = async (customer_id: number,vehicle_id: number,rent_start
   return booking;
 };
 
+// Get all bookings (role-based)
 const getAllBookingDB = async (role: string, userId: number) => {
   let query;
   let params: any[] = [];
@@ -85,17 +91,81 @@ const getAllBookingDB = async (role: string, userId: number) => {
     `;
     params = [userId];
   }
-  //todo= response structure
 
   const result = await pool.query(query, params);
   return result.rows;
 };
 
+// Update booking (cancel by customer or mark returned by admin)
+const updateBookingDB = async (role: string, userId: number, bookingId: number, status: string) => {
+  // Fetch booking with only date (ignore time)
+  const bookingResult = await pool.query(
+    `SELECT id, customer_id, vehicle_id, rent_start_date::date AS rent_start_date, rent_end_date::date AS rent_end_date, status
+     FROM booking
+     WHERE id=$1`,
+    [bookingId]
+  );
 
+  if (bookingResult.rows.length === 0) {
+    throw new Error("Booking not found");
+  }
 
+  const booking = bookingResult.rows[0];
+
+  // CUSTOMER LOGIC: can cancel only before start date
+  if (role === "customer") {
+    if (booking.customer_id !== userId) {
+      throw new Error("You can only cancel your own booking");
+    }
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const bookingDay = new Date(booking.rent_start_date); // already only date
+
+    if (today >= bookingDay) {
+      throw new Error("Cannot cancel booking after start date");
+    }
+
+    if (status !== "cancelled") {
+      throw new Error("Customers can only cancel bookings");
+    }
+
+    const result = await pool.query(
+      `UPDATE booking SET status=$1 WHERE id=$2 RETURNING *`,
+      [status, bookingId]
+    );
+
+    return result.rows[0];
+  }
+
+  // ADMIN LOGIC: mark as returned (updates vehicle to available)
+  if (role === "admin") {
+    if (status !== "returned") {
+      throw new Error("Admin can only mark as returned");
+    }
+
+    const result = await pool.query(
+      `UPDATE booking SET status=$1 WHERE id=$2 RETURNING *`,
+      [status, bookingId]
+    );
+
+    const updatedBooking = result.rows[0];
+
+    // Update vehicle availability
+    await pool.query(
+      `UPDATE vehicles SET availability_status='available' WHERE id=$1`,
+      [updatedBooking.vehicle_id]
+    );
+
+    updatedBooking.vehicle = { availability_status: "available" };
+    return updatedBooking;
+  }
+
+  throw new Error("Unauthorized action");
+};
 
 export const bookingService = {
   createBookingDB,
-  getAllBookingDB
-
+  getAllBookingDB,
+  updateBookingDB
 };
