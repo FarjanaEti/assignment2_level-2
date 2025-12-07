@@ -14,33 +14,34 @@ const createVehicle=async(req:Request, res:Response)=>{
        res.status(500).json({
       success: false,
       message: err.message,
+      errors:err
     });
     }
 
 }
 
-//TODO= if empty dataset
+
 const getVehicles=async (req: Request, res: Response) => {
   try {
     const result =await vehicleServices.getVehiclesDB();
   
     res.status(200).json({
       success: true,
-      message: "Vehicles retrieved successfully",
-      data: result.rows,
+      message: result.message,
+      data: result.rows
     });
   } catch (err: any) {
     res.status(500).json({
       success: false,
       message: err.message,
-      datails: err,
+      errors: err,
     });
   }
 }
 
 const getSingleVehicles=async (req: Request, res: Response) => {
   try {
-    const result = await vehicleServices.getSingleVehiclesDB(req.params.id as string);
+    const result = await vehicleServices.getSingleVehiclesDB(req.params.vehicleId as string);
     if (result.rows.length === 0) {
       res.status(404).json({
         success: false,
@@ -64,7 +65,8 @@ const getSingleVehicles=async (req: Request, res: Response) => {
 const updateVehicles=async (req: Request, res: Response) => {
   const { vehicle_name,daily_rent_price,availability_status } = req.body;
   try {
-    const result = await vehicleServices.updateVehiclesDB(vehicle_name,daily_rent_price,availability_status, req.params.id!);
+    const result = await vehicleServices.updateVehiclesDB
+    (vehicle_name,daily_rent_price,availability_status, req.params.vehicleId!);
 //   console.log(result)
     if (result.rows.length === 0) {
       res.status(404).json({
@@ -82,13 +84,14 @@ const updateVehicles=async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: err.message,
+      errors:err
     });
   }
 };
 
 const deleteVehicles= async (req: Request, res: Response) => {
   try {
-    const result = await vehicleServices.deleteVehiclesDB(req.params.id!);
+    const result = await vehicleServices.deleteVehiclesDB(req.params.vehicleId!);
 
     if (result.rowCount === 0) {
       res.status(404).json({
@@ -105,6 +108,7 @@ const deleteVehicles= async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: err.message,
+      errors:err
     });
   }
 };
