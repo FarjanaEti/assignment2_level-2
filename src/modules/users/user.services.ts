@@ -19,22 +19,23 @@ const getUserDB=async()=>{
   return result;
 }
 
-const getSingleUserDB=async(id:string)=>{
-  const result=await pool.query(`SELECT * FROM users WHERE id = $1`, [id]);
+const getSingleUserDB=async(userId:string)=>{
+  const result=await pool.query(`SELECT * FROM users WHERE id = $1`, [userId]);
    return result
 }
 
-const updateUserDB = async (name: string, email: string, phone: string, role: string, id: string) => {
+const updateUserDB = async (name: string, email: string, phone: string, role: string, userId: string) => {
+  
   const result = await pool.query(
     `UPDATE users SET name=$1, email=$2, phone=$3, role=$4 WHERE id=$5 RETURNING *`,
-    [name, email,phone,role,id]
+    [name, email,phone,role,userId]
   );
    delete result.rows[0].password;
   return result;
 };
 
-const deleteUserDB = async (id: string) => {
-  const result = await pool.query(`DELETE FROM users WHERE id = $1`, [id]);
+const deleteUserDB = async (userId: string) => {
+  const result = await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
 
   return result;
 };

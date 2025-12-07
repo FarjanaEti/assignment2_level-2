@@ -45,7 +45,7 @@ const getUser=async (req: Request, res: Response) => {
 const getSingleUser=async (req: Request, res: Response) => {
 
   try {
-    const result = await userServices.getSingleUserDB(req.params.id as string);
+    const result = await userServices.getSingleUserDB(req.params.userId as string);
     if (result.rows.length === 0) {
       res.status(404).json({
         success: false,
@@ -66,34 +66,60 @@ const getSingleUser=async (req: Request, res: Response) => {
   }
 }
 
-const updateUser=async (req: Request, res: Response) => {
-  const { name,email,phone,role } = req.body;
+const updateUser = async (req: Request, res: Response) => {
+  const { name, email, phone, role } = req.body;
+
+  const targetId = req.params.userId!;
+  const signinUser = req.user;
+
+ 
+  if (signinUser?.role === "customer" && signinUser?.userId !== targetId) {
+    return res.status(403).json({
+      success: false,
+      message: "You can only update your own profile."
+    });
+  }
+
+  let roleupdate = role;
+  if (signinUser?.role !== "admin") {
+     if (role !== undefined) {
+    return res.status(403).json({
+      success: false,
+      message: "You are not allowed to update user role."
+    });
+  }
+  roleupdate = undefined;
+  }
+
   try {
-    const result = await userServices.updateUserDB(name, email,phone,role, req.params.id!);
-//   console.log(result)
+    const result = await userServices.updateUserDB(name,email,phone, roleupdate,targetId);
+
     if (result.rows.length === 0) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
-        message: "User not found",
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "User updated successfully",
-        data: result.rows[0],
+        message: "User not found"
       });
     }
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: result.rows[0],
+    });
+
   } catch (err: any) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: err.message,
+      errors:err
     });
   }
 };
 
+
 const deleteUser= async (req: Request, res: Response) => {
   try {
-    const result = await userServices.deleteUserDB(req.params.id!);
+    const result = await userServices.deleteUserDB(req.params.userId!);
 
     if (result.rowCount === 0) {
       res.status(404).json({

@@ -6,8 +6,8 @@ const router= express.Router();
 
 router.post('/',userCollectors.createUser);
 router.get('/',logger,auth("admin"),userCollectors.getUser)
-router.get('/:id',userCollectors.getSingleUser)
-router.put('/:id',userCollectors.updateUser)
-router.delete('/:id',auth("admin"),userCollectors.deleteUser)
+router.get('/:userId',userCollectors.getSingleUser)
+router.put('/:userId',auth("admin","customer"),userCollectors.updateUser)
+router.delete('/:userId',auth("admin"),userCollectors.deleteUser)
 
 export const userRoutes=router;
